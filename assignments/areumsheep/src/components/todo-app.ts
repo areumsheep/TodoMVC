@@ -42,6 +42,7 @@ class TodoApp extends HTMLElement {
   $input: HTMLInputElement;
   $count: HTMLSpanElement;
   $todoList: HTMLUListElement;
+  $clearCompletedButton: HTMLButtonElement;
 
   constructor(){
     super();
@@ -57,6 +58,7 @@ class TodoApp extends HTMLElement {
     this.$input = $<HTMLInputElement>('.new-todo', shadow);
     this.$count = $<HTMLSpanElement>('.todo-count', shadow);
     this.$todoList = $<HTMLUListElement>('.todo-list', shadow);
+    this.$clearCompletedButton = $<HTMLButtonElement>('.clear-completed', shadow);
 
     // 할 일 추가 이벤트
     this.$input.addEventListener('keyup', this.addTodo);
@@ -64,6 +66,9 @@ class TodoApp extends HTMLElement {
 
     // 할 일 삭제 이벤트
     this.$todoList.addEventListener('click', this.bindTodoList);
+
+    // 할 일 전체 삭제 이벤트
+    this.$clearCompletedButton.addEventListener('click', this.deleteCompletedTodo)
   }
 
   bindTodoList = (e: MouseEvent) => {
@@ -85,6 +90,12 @@ class TodoApp extends HTMLElement {
 
     this.renderTodoList();
   }
+  bindTodoFooter = (e: MouseEvent) => {
+    e.preventDefault();
+    const target = e.target as HTMLElement;
+    if(!target.className) return;
+  }
+
   addTodo = (e: KeyboardEvent | FocusEvent) => {
     if(e instanceof KeyboardEvent) {
       if(e.keyCode !== KEYCODE.ENTER) return;
@@ -98,6 +109,10 @@ class TodoApp extends HTMLElement {
   }
   deleteTodo = (index: number) => {
     this.#todos.splice(index, 1);
+    this.renderTodoList();
+  }
+  deleteCompletedTodo = () => {
+    this.#todos = this.#todos.filter(todo => !todo.isCompleted);
     this.renderTodoList();
   }
   toggleTodo = (index: number) => {
