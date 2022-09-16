@@ -40,6 +40,7 @@ class TodoApp extends HTMLElement {
   #todos: TodoType[] = [];
   
   $input: HTMLInputElement;
+  $count: HTMLSpanElement;
   $todoList: HTMLUListElement;
 
   constructor(){
@@ -54,6 +55,7 @@ class TodoApp extends HTMLElement {
     shadow.append(template.content.cloneNode(true));
 
     this.$input = $<HTMLInputElement>('.new-todo', shadow);
+    this.$count = $<HTMLSpanElement>('.todo-count', shadow);
     this.$todoList = $<HTMLUListElement>('.todo-list', shadow);
 
     // 할 일 추가 이벤트
@@ -105,6 +107,7 @@ class TodoApp extends HTMLElement {
   };
   renderTodoList() {
     let index = 0;
+    this.$count.innerText = `${this.#todos.length} items left`;
     this.$todoList.innerHTML = '';
     for(const {title, isCompleted} of this.#todos){
       const template = `
