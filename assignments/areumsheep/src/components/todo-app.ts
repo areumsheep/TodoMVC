@@ -35,6 +35,7 @@ template.innerHTML = `
 `
 
 class TodoApp extends HTMLElement {
+  // TODO Map이나 Set을 사용해도 좋을 것 같다!
   #todos: TodoType[] = [];
   
   $input: HTMLInputElement;
@@ -54,33 +55,54 @@ class TodoApp extends HTMLElement {
     this.$input = $<HTMLInputElement>('.new-todo', shadow);
     this.$todoList = $<HTMLUListElement>('.todo-list', shadow);
 
+    // 할 일 추가 이벤트
     this.$input.addEventListener('keyup', this.addTodo);
+    this.$input.addEventListener('focusout', this.addTodo);
+
+    // 할 일 삭제 이벤트
+    this.$todoList.addEventListener('click', this.bindTodoList);
   }
 
-  // TODO 제네릭으로 받을 수 있는 방법이 있을까?
-  addTodo = (e: any) => {
-    if(e.keyCode === 13) {
-      e.preventDefault();
-      if(this.$input.value.length > 0){
-        this.#todos.push({title: this.$input.value, isCompleted: false});
-        this.$input.value = '';
-        this.renderTodoList();
-      }
+  bindTodoList = (e: MouseEvent) => {
+    e.preventDefault();
+    const target = e.target as HTMLElement;
+    if(target.className === 'destroy') {
+      const clickedTodo = target.closest('.view');
+      const clickedIndex = clickedTodo?.getAttribute('data-id') as string;
+      this.deleteTodo(parseInt(clickedIndex));
+    }
+
+    this.renderTodoList();
+  }
+  addTodo = (e: KeyboardEvent | FocusEvent) => {
+    if(e instanceof KeyboardEvent) {
+      if(e.keyCode !== 13) return;
+    }
+    e.preventDefault();
+    if(this.$input.value.length > 0){
+      this.#todos.push({title: this.$input.value, isCompleted: false});
+      this.$input.value = '';
+      this.renderTodoList();
     }
   }
+  deleteTodo = (index: number) => {
+    this.#todos.splice(index, 1);
+    this.renderTodoList();
+  }
   renderTodoList() {
+    let index = 0;
     this.$todoList.innerHTML = '';
     for(const {title} of this.#todos){
       const template = `
-        <div class="view">
+        <div class="view" data-id=${index}>
           <input class="toggle" type="checkbox">
           <label>${title}</label>
           <button class="destroy"></button>
         </div>
-      `;
-
+      `;   
       const $item = createElement('li', template);
       this.$todoList.append($item);
+      index++;
     }
   }
 }
