@@ -67,10 +67,18 @@ class TodoApp extends HTMLElement {
   bindTodoList = (e: MouseEvent) => {
     e.preventDefault();
     const target = e.target as HTMLElement;
-    if(target.className === 'destroy') {
-      const clickedTodo = target.closest('.view');
-      const clickedIndex = clickedTodo?.getAttribute('data-id') as string;
-      this.deleteTodo(parseInt(clickedIndex));
+    if(!target.className) return;
+    const clickedTodo = target.closest('.view');
+    const clickedIndex = clickedTodo?.getAttribute('data-id') as string;
+
+    switch(target.className){
+      case 'destroy':
+        this.deleteTodo(parseInt(clickedIndex));
+        break;
+      case 'toggle':
+        this.toggleTodo(parseInt(clickedIndex));
+        break;
+      //TODO default 일 때는 어떻게 하는 것이 좋을까?
     }
 
     this.renderTodoList();
@@ -90,13 +98,18 @@ class TodoApp extends HTMLElement {
     this.#todos.splice(index, 1);
     this.renderTodoList();
   }
+  toggleTodo = (index: number) => {
+    const {isCompleted} = this.#todos[index];
+    this.#todos[index].isCompleted = !isCompleted;
+    this.renderTodoList();
+  };
   renderTodoList() {
     let index = 0;
     this.$todoList.innerHTML = '';
-    for(const {title} of this.#todos){
+    for(const {title, isCompleted} of this.#todos){
       const template = `
         <div class="view" data-id=${index}>
-          <input class="toggle" type="checkbox">
+          <input class="toggle" type="checkbox" ${isCompleted && 'checked'}>
           <label>${title}</label>
           <button class="destroy"></button>
         </div>
