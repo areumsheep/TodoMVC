@@ -1,5 +1,6 @@
 import {$, createElement} from '../utils';
-import { TodoType } from "../types/TodoType";
+import { KEYCODE } from '../constants';
+import type { TodoType } from "../types/TodoType";
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -76,7 +77,7 @@ class TodoApp extends HTMLElement {
   }
   addTodo = (e: KeyboardEvent | FocusEvent) => {
     if(e instanceof KeyboardEvent) {
-      if(e.keyCode !== 13) return;
+      if(e.keyCode !== KEYCODE.ENTER) return;
     }
     e.preventDefault();
     if(this.$input.value.length > 0){
